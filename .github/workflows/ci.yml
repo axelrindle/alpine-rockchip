@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-uboot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/arm64
+      - name: Build U-Boot
+        uses: docker/build-push-action@v3
+        with:
+          # docker build -f uboot.Dockerfile --output=. --target=bin .
+          push: false
+          context: .
+          outputs: .
+          file: uboot.Dockerfile
+          target: bin
+          sbom: true
+          provenance: true
+          cache-from: type=gha
+          cache-to: type=gha
+      - name: Build image
+        working-directory: out
+        run: |
+          dd if=/dev/zero of=bootloader.img bs=512 count=32767
+          dd if=./idbloader.img of=bootloader.img bs=512 seek=64 conv=notrunc
+          dd if=./u-boot.itb of=bootloader.img bs=512 seek=16384
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: images
+          path: |
+            out/*.img
