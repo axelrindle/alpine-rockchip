@@ -1,6 +1,20 @@
-FROM alpine as build
+FROM alpine AS build
 
-RUN apk add alpine-sdk bc bison dtc flex gnutls-dev linux-headers ncurses-dev openssl-dev python3-dev swig util-linux-dev py3-setuptools py3-elftools
+RUN apk add --no-cache \
+        alpine-sdk \
+        bc \
+        bison \
+        dtc \
+        flex \
+        gnutls-dev \
+        linux-headers \
+        ncurses-dev \
+        openssl-dev \
+        python3-dev \
+        py3-elftools \
+        py3-setuptools \
+        swig \
+        util-linux-dev
 
 # Create build directory
 RUN mkdir -p /build/boot
@@ -25,5 +39,7 @@ RUN mkdir -p out
 RUN cp /build/boot/u-boot/idbloader.img ./out
 RUN cp /build/boot/u-boot/u-boot.itb ./out
 
-FROM scratch as bin
+
+FROM scratch AS bin
+
 COPY --from=build /build/boot/u-boot/out /out
