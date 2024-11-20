@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  BUILD_PLATFORMS: linux/arm64
+
 jobs:
   build-uboot:
     runs-on: ubuntu-latest
@@ -16,12 +19,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          platforms: linux/arm64
+          platforms: ${{ env.BUILD_PLATFORMS }}
       - name: Build U-Boot
         uses: docker/build-push-action@v3
         with:
           # docker build -f uboot.Dockerfile --output=. --target=bin .
           push: false
+          platforms: ${{ env.BUILD_PLATFORMS }}
           context: .
           outputs: .
           file: uboot.Dockerfile
