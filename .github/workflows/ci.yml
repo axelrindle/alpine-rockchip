@@ -21,7 +21,7 @@ jobs:
         with:
           platforms: ${{ env.BUILD_PLATFORMS }}
       - name: Build U-Boot
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           # docker build -f uboot.Dockerfile --output=. --target=bin .
           push: false
