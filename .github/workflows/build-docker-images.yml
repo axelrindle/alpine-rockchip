@@ -45,3 +45,4 @@ jobs:
           provenance: true
           cache-from: type=gha
           cache-to: type=gha
+          push: true
