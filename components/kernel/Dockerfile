@@ -17,4 +17,4 @@ COPY .config .
 
 RUN chmod +x docker-entrypoint.sh
 
-CMD [ "docker-entrypoint.sh" ]
+CMD [ "./docker-entrypoint.sh" ]
