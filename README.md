@@ -1,9 +1,14 @@
 # alpine-rockchip
 
-## Image with dd
+>  Alpine Linux for the RK3588 SoC (used on the Turing RK1) and Mainline Linux Kernel 6.x
 
-```shell
-dd if=/dev/zero of=bootloader.img bs=512 count=32767
-dd if=./idbloader.img of=bootloader.img bs=512 seek=64 conv=notrunc
-dd if=./u-boot.itb of=bootloader.img bs=512 seek=16384
-```
+> [!CAUTION]
+> This project is a work-in-progress. Use at your own risk.
+
+## Builds
+
+Images are built using Github Actions. Check the latest build or release for flashable images.
+
+## License
+
+[MIT](LICENSE)
