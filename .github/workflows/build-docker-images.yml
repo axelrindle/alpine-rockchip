@@ -30,9 +30,8 @@ jobs:
           password: ${{ github.token }}
       - uses: docker/build-push-action@v6
         with:
-          tags: ghcr.io/${{ github.repository }}/${{ matrix.component }}:latest
+          tags: ghcr.io/${{ github.repository }}/build-${{ matrix.component }}:latest
           context: components/${{ matrix.component }}
-          file: Dockerfile
           sbom: true
           provenance: true
           cache-from: type=gha
