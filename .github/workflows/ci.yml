@@ -1,0 +1,139 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-u-boot:
+    runs-on: ubuntu-latest
+    env:
+      ARCH: arm
+      CROSS_COMPILE: aarch64-linux-gnu-
+      ROCKCHIP_TPL: ${{ github.workspace }}/rkbin/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.18.bin
+      BL31: ${{ github.workspace }}/rkbin/bin/rk35/rk3588_bl31_v1.47.elf
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ github.token }}
+          repository: u-boot/u-boot
+          path: u-boot
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ github.token }}
+          repository: rockchip-linux/rkbin
+          path: rkbin
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install \
+            gcc \
+            gcc-aarch64-linux-gnu \
+            bc \
+            bison \
+            coccinelle \
+            device-tree-compiler \
+            dfu-util \
+            efitools \
+            flex \
+            gdisk \
+            graphviz \
+            imagemagick \
+            liblz4-tool \
+            libgnutls28-dev \
+            libguestfs-tools \
+            libncurses-dev \
+            libpython3-dev \
+            libsdl2-dev \
+            libssl-dev \
+            lz4 \
+            lzma \
+            lzma-alone \
+            openssl \
+            pkg-config \
+            python3 \
+            python3-asteval \
+            python3-coverage \
+            python3-filelock \
+            python3-pkg-resources \
+            python3-pycryptodome \
+            python3-pyelftools \
+            python3-pytest \
+            python3-pytest-xdist \
+            python3-sphinxcontrib.apidoc \
+            python3-sphinx-rtd-theme \
+            python3-subunit \
+            python3-testtools \
+            python3-virtualenv \
+            swig \
+            uuid-dev
+
+      - name: Make config
+        working-directory: u-boot
+        run: |
+          make turing-rk1-rk3588_defconfig
+
+      - name: Make u-boot
+        working-directory: u-boot
+        run: |
+          make -j$(nproc)
+
+      - name: Make image
+        run: |
+          dd if=/dev/zero of=bootloader.img bs=512 count=32767
+          dd if=./u-boot/idbloader.img of=bootloader.img bs=512 seek=64 conv=notrunc
+          dd if=./u-boot/u-boot.itb of=bootloader.img bs=512 seek=16384
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: u-boot
+          path: bootloader.img
+
+  build-kernel:
+    runs-on: ubuntu-latest
+    env:
+      ARCH: arm64
+      CROSS_COMPILE: aarch64-linux-gnu-
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: torvalds/linux
+          ref: v6.12
+
+      - uses: actions/checkout@v4
+        with:
+          path: _custom
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install \
+            gcc \
+            gcc-aarch64-linux-gnu \
+            bison \
+            flex \
+            git \
+            bc \
+            linux-source \
+            libncurses-dev
+
+      - name: Make config
+        run: |
+          make mrproper
+          cp _custom/.config .config
+          make allnoconfig
+
+      - name: Make kernel
+        run: |
+          make -j$(nproc)
+          ls
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel
+          path: |
+            arch/arm64/boot/Image.gz
