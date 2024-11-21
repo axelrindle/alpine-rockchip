@@ -6,6 +6,7 @@ on:
     branches:
       - main
     paths:
+      - .github/workflows/build-docker-images.yml
       - components/**/Dockerfile
 
 jobs:
@@ -28,9 +29,15 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          tags: |
+            type=raw,value=ghcr.io/${{ github.repository }}/build-${{ matrix.component }}:latest
       - uses: docker/build-push-action@v6
         with:
-          tags: ghcr.io/${{ github.repository }}/build-${{ matrix.component }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           context: components/${{ matrix.component }}
           sbom: true
           provenance: true
