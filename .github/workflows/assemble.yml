@@ -30,7 +30,7 @@ jobs:
       - name: Build ${{ matrix.component }}
         run: |
           mkdir ./out
-          docker run --rm -it \
+          docker run \
             ghcr.io/${{ github.repository }}/${{ matrix.component }} \
             --platform ${{ env.BUILD_PLATFORMS }} \
             -v ./out:/out \
