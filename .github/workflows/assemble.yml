@@ -34,7 +34,9 @@ jobs:
 
       - name: Pull image
         run: |
-          docker pull ${{ steps.image.outputs.image }}
+          docker pull \
+            --platform ${{ env.BUILD_PLATFORMS }} \
+            ${{ steps.image.outputs.image }}
 
       - name: Build ${{ matrix.component }}
         run: |
