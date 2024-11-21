@@ -27,15 +27,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
+      - name: Compute image
+        id: image
+        run: |
+          echo "image=ghcr.io/${{ github.repository }}/build-${{ matrix.component }}:latest" >> "$GITHUB_OUTPUT"
+
       - name: Pull image
         run: |
-          docker pull ghcr.io/${{ github.repository }}/${{ matrix.component }}
+          docker pull ${{ steps.image.outputs.image }}
 
       - name: Build ${{ matrix.component }}
         run: |
           mkdir ./out
           docker run \
-            ghcr.io/${{ github.repository }}/${{ matrix.component }} \
+            ${{ steps.image.outputs.image }} \
             --platform ${{ env.BUILD_PLATFORMS }} \
             -v ./out:/out \
 
