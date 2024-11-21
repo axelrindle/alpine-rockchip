@@ -40,9 +40,9 @@ jobs:
         run: |
           mkdir ./out
           docker run \
-            ${{ steps.image.outputs.image }} \
             --platform ${{ env.BUILD_PLATFORMS }} \
             -v ./out:/out \
+            ${{ steps.image.outputs.image }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
