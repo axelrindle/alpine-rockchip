@@ -32,8 +32,10 @@ jobs:
       - id: meta
         uses: docker/metadata-action@v5
         with:
+          images: |
+            ghcr.io/${{ github.repository }}/build-${{ matrix.component }}
           tags: |
-            type=raw,value=ghcr.io/${{ github.repository }}/build-${{ matrix.component }}:latest
+            type=raw,value=latest,enable={{is_default_branch}}
       - uses: docker/build-push-action@v6
         with:
           tags: ${{ steps.meta.outputs.tags }}
