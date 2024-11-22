@@ -177,14 +177,17 @@ jobs:
         run: |
           /sbin/sfdisk alpine.img < layout.sfdisk
 
+      - name: Create loopdevice
+        run: |
+          echo "LOOP_DEVICE=$(sudo losetup -Pf --show alpine.img)" >> "$GITHUB_ENV"
+
       - name: Mount image
         run: |
-          export LOOP_DEVICE=$(sudo losetup -Pf --show alpine.img)
-          sudo mkfs.fat -F 32 ${LOOP_DEVICE}p1
-          sudo mkfs.ext4 ${LOOP_DEVICE}p2
+          sudo mkfs.fat -F 32 "${LOOP_DEVICE}p1"
+          sudo mkfs.ext4 "${LOOP_DEVICE}p2"
           mkdir -p mnt/{boot,root}
-          sudo mount ${LOOP_DEVICE}p1 mnt/boot/
-          sudo mount ${LOOP_DEVICE}p2 mnt/root/
+          sudo mount "${LOOP_DEVICE}p1" mnt/boot/
+          sudo mount "${LOOP_DEVICE}p2" mnt/root/
 
       - name: Copy boot files
         run: |
@@ -204,7 +207,7 @@ jobs:
         run: |
           sudo umount mnt/boot/
           sudo umount mnt/root/
-          sudo losetup -d ${LOOP_DEVICE}
+          sudo losetup -d "${LOOP_DEVICE}"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
