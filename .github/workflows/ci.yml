@@ -138,10 +138,77 @@ jobs:
           make -j$(nproc)
           make -j$(nproc) dtbs
 
+      - name: Prepare artifacts
+        run: |
+          cp arch/arm64/boot/Image .
+          cp arch/arm64/boot/dts/rockchip/rk3588-turing-rk1.dtb .
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: kernel
           path: |
-            arch/arm64/boot/Image
-            arch/arm64/boot/dts/rockchip/rk3588-turing-rk1.dtb
+            Image
+            rk3588-turing-rk1.dtb
+
+  build-bootable-imabe:
+    runs-on: ubuntu-latest
+    needs:
+      - build-u-boot
+      - build-kernel
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install \
+            fdisk
+
+      - name: Create empty image file
+        run: |
+          dd if=/dev/zero of=alpine.img bs=1M count=150
+
+      - name: Apply sfdisk layout
+        run: |
+          /sbin/sfdisk alpine.img < layout.sfdisk
+
+      - name: Mount image
+        run: |
+          export LOOP_DEVICE=$(sudo losetup -Pf --show alpine.img)
+          sudo mkfs.fat -F 32 ${LOOP_DEVICE}p1
+          sudo mkfs.ext4 ${LOOP_DEVICE}p2
+          mkdir -p mnt/{boot,root}
+          sudo mount ${LOOP_DEVICE}p1 mnt/boot/
+          sudo mount ${LOOP_DEVICE}p2 mnt/root/
+
+      - name: Copy boot files
+        run: |
+          cp idbloader.img mnt/boot/
+          cp u-boot.itb mnt/boot/
+          cp boot.scr mnt/boot/
+          cp Image mnt/boot/
+
+      - name: Install rootfs
+        working-directory: mnt/root
+        run: |
+          sudo wget https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/aarch64/alpine-minirootfs-3.20.3-aarch64.tar.gz
+          sudo tar xvf alpine-minirootfs-3.20.3-aarch64.tar.gz
+          sudo rm alpine-minirootfs-3.20.3-aarch64.tar.gz
+
+      - name: Cleanup
+        run: |
+          sudo umount mnt/boot/
+          sudo umount mnt/root/
+          sudo losetup -d ${LOOP_DEVICE}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: image
+          path: |
+            alpine.img
