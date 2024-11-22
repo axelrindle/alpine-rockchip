@@ -1,0 +1,7 @@
+fatload mmc 0:1 ${kernel_addr_r} Image
+fatload mmc 0:1 ${kernel_addr_r} rk3588-turing-rk1.dtb 100000 240000000
+
+setenv bootargs 'root=/dev/mmcblk0p1 rw console=tty0'
+saveenv
+
+booti

@@ -24,6 +24,9 @@ jobs:
           token: ${{ github.token }}
           repository: rockchip-linux/rkbin
           path: rkbin
+      - uses: actions/checkout@v4
+        with:
+          path: _custom
 
       - name: Install dependencies
         run: |
@@ -80,13 +83,23 @@ jobs:
         run: |
           make -j$(nproc)
 
+      - name: Make boot config
+        run: |
+          ./u-boot/tools/mkimage -T script -d ./_custom/cmdline.txt boot.scr
+
+      - name: Prepare artifacts
+        run: |
+          cp ./u-boot/idbloader.img .
+          cp ./u-boot/u-boot.itb .
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: u-boot
           path: |
-            ./u-boot/idbloader.img
-            ./u-boot/u-boot.itb
+            idbloader.img
+            u-boot.itb
+            boot.scr
 
   build-kernel:
     runs-on: ubuntu-latest
