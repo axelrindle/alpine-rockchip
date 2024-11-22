@@ -188,10 +188,10 @@ jobs:
 
       - name: Copy boot files
         run: |
-          cp idbloader.img mnt/boot/
-          cp u-boot.itb mnt/boot/
-          cp boot.scr mnt/boot/
-          cp Image mnt/boot/
+          sudo cp idbloader.img mnt/boot/
+          sudo cp u-boot.itb mnt/boot/
+          sudo cp boot.scr mnt/boot/
+          sudo cp Image mnt/boot/
 
       - name: Install rootfs
         working-directory: mnt/root
