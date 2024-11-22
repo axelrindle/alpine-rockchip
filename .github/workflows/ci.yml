@@ -120,20 +120,19 @@ jobs:
             linux-source \
             libncurses-dev
 
-      - name: Make config
+      - name: Install config
         run: |
-          make mrproper
           cp _custom/.config .config
-          make allnoconfig
 
       - name: Make kernel
         run: |
           make -j$(nproc)
-          ls
+          make -j$(nproc) dtbs
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: kernel
           path: |
-            arch/arm64/boot/Image.gz
+            arch/arm64/boot/Image
+            arch/arm64/boot/dts/rockchip/rk3588-turing-rk1.dtb
