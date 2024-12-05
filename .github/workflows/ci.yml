@@ -4,9 +4,12 @@ on:
   push:
     branches:
       - main
+    tags:
+      - v*.*.*
 
 jobs:
   build-u-boot:
+    name: Build Universal Bootloader
     runs-on: ubuntu-latest
     env:
       ARCH: arm
@@ -102,6 +105,7 @@ jobs:
             boot.scr
 
   build-kernel:
+    name: Build Linux Kernel
     runs-on: ubuntu-latest
     env:
       ARCH: arm64
@@ -152,6 +156,7 @@ jobs:
             rk3588-turing-rk1.dtb
 
   build-bootable-imabe:
+    name: Build bootable Image
     runs-on: ubuntu-latest
     needs:
       - build-u-boot
@@ -215,3 +220,23 @@ jobs:
           name: image
           path: |
             alpine.img
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    name: Publish release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - build-bootable-imabe
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: false
+          files: |
+            alpine.img
+
