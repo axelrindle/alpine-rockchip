@@ -116,6 +116,7 @@ jobs:
         with:
           repository: torvalds/linux
           ref: v6.12
+          fetch-depth: 1
 
       - uses: actions/checkout@v4
         with:
