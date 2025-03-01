@@ -16,7 +16,7 @@ jobs:
       ARCH: arm
       CROSS_COMPILE: aarch64-linux-gnu-
       ROCKCHIP_TPL: ${{ github.workspace }}/rkbin/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.18.bin
-      BL31: ${{ github.workspace }}/rkbin/bin/rk35/rk3588_bl31_v1.47.elf
+      BL31: ${{ github.workspace }}/rkbin/bin/rk35/rk3588_bl31_v1.48.elf
     steps:
       - uses: actions/checkout@v4
         with:
