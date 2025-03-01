@@ -141,6 +141,7 @@ jobs:
 
       - name: Make kernel
         run: |
+          make -j$(nproc) olddefconfig
           make -j$(nproc)
           make -j$(nproc) dtbs
 
