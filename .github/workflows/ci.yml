@@ -23,11 +23,15 @@ jobs:
           token: ${{ github.token }}
           repository: u-boot/u-boot
           path: u-boot
+          ref: v2025.01
+          fetch-depth: 1
       - uses: actions/checkout@v4
         with:
           token: ${{ github.token }}
           repository: rockchip-linux/rkbin
           path: rkbin
+          ref: 0f8ac860f0479da56a1decae207ddc99e289f2e2
+          fetch-depth: 1
       - uses: actions/checkout@v4
         with:
           path: _custom
